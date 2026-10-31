@@ -1,0 +1,7 @@
+data/processed/
+reports/oof/
+reports/eval/
+__pycache__/
+*.pyc
+.venv/
+.ipynb_checkpoints/

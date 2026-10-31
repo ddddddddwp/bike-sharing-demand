@@ -1,0 +1,46 @@
+project: bike-sharing-demand
+seed: 42
+
+paths:
+  raw_dir: data/raw
+  processed_dir: data/processed
+  splits: splits/time_folds.json
+  reports: reports
+  figures: reports/figures
+  oof_dir: reports/oof
+  exp_log: reports/exp_log.csv
+
+data:
+  train_file: train.csv
+  test_file: test.csv
+  sample_sub_file: sample_submission.csv
+  datetime_col: datetime
+  target: count
+  drop_cols: [casual, registered]
+
+split:
+  strategy: time
+  n_splits: 5
+  folds_file: splits/time_folds.json
+
+eval:
+  metric: rmsle
+
+model:
+  lgbm:
+    n_estimators: 800
+    learning_rate: 0.05
+    num_leaves: 31
+    min_child_samples: 30
+    subsample: 0.8
+    subsample_freq: 1
+    colsample_bytree: 0.8
+    objective: poisson
+    n_jobs: -1
+    verbose: -1
+  rf:
+    n_estimators: 300
+    min_samples_leaf: 3
+    n_jobs: -1
+  ridge:
+    alpha: 1.0

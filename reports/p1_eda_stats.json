@@ -1,0 +1,492 @@
+{
+  "generated_by": "scripts/eda.py",
+  "config": "/root/code/bike-sharing-demand/configs/base.yaml",
+  "data": {
+    "train": {
+      "rows": 10886,
+      "columns": [
+        "datetime",
+        "season",
+        "holiday",
+        "workingday",
+        "weather",
+        "temp",
+        "atemp",
+        "humidity",
+        "windspeed",
+        "casual",
+        "registered",
+        "count"
+      ],
+      "derived_columns": [
+        "hour",
+        "weekday",
+        "is_weekend",
+        "month",
+        "year"
+      ],
+      "date_min": "2011-01-01T00:00:00",
+      "date_max": "2012-12-19T23:00:00",
+      "missing_total": 0,
+      "missing_by_column": {
+        "datetime": 0,
+        "season": 0,
+        "holiday": 0,
+        "workingday": 0,
+        "weather": 0,
+        "temp": 0,
+        "atemp": 0,
+        "humidity": 0,
+        "windspeed": 0,
+        "casual": 0,
+        "registered": 0,
+        "count": 0,
+        "hour": 0,
+        "weekday": 0,
+        "is_weekend": 0,
+        "month": 0,
+        "year": 0
+      },
+      "duplicate_datetime": 0,
+      "coverage": {
+        "unique_days": 456,
+        "expected_rows_if_24h_complete": 10944,
+        "missing_hours_vs_complete": 58,
+        "days_with_24h": 414,
+        "days_with_23h": 36,
+        "days_with_22h": 5,
+        "days_with_other": 1
+      },
+      "count": {
+        "count": 10886,
+        "mean": 191.57413191254824,
+        "std": 181.14445383028527,
+        "min": 1.0,
+        "q01": 2.0,
+        "q05": 5.0,
+        "q25": 42.0,
+        "median": 145.0,
+        "q75": 284.0,
+        "q95": 563.75,
+        "q99": 774.1499999999996,
+        "max": 977.0,
+        "skew": 1.2420662117180776
+      },
+      "log1p_count": {
+        "count": 10886,
+        "mean": 4.591363690454027,
+        "std": 1.4194541844653845,
+        "min": 0.6931471805599453,
+        "q01": 1.0986122886681098,
+        "q05": 1.791759469228055,
+        "q25": 3.7612001156935624,
+        "median": 4.983606621708336,
+        "q75": 5.652489180268651,
+        "q95": 6.336382861234346,
+        "q99": 6.653056452977828,
+        "max": 6.885509670034818,
+        "skew": -0.8514116321738531
+      },
+      "weather_counts": {
+        "1": 7192,
+        "2": 2834,
+        "3": 859,
+        "4": 1
+      },
+      "weather_share_pct": {
+        "1": 66.067,
+        "2": 26.033,
+        "3": 7.891,
+        "4": 0.009
+      },
+      "season_counts": {
+        "1": 2686,
+        "2": 2733,
+        "3": 2733,
+        "4": 2734
+      },
+      "workingday_counts": {
+        "0": 3474,
+        "1": 7412
+      },
+      "holiday_counts": {
+        "0": 10575,
+        "1": 311
+      },
+      "casual_registered_sum_equals_count": true,
+      "yearly_mean_count": {
+        "2011": 144.2233,
+        "2012": 238.5609
+      },
+      "monthly_mean_count": {
+        "2011-01": 54.645,
+        "2011-02": 73.6413,
+        "2011-03": 86.8498,
+        "2011-04": 111.0264,
+        "2011-05": 174.8092,
+        "2011-06": 196.8772,
+        "2011-07": 203.614,
+        "2011-08": 182.6667,
+        "2011-09": 174.6225,
+        "2011-10": 174.7736,
+        "2011-11": 155.4583,
+        "2011-12": 134.1732,
+        "2012-01": 124.3532,
+        "2012-02": 145.6462,
+        "2012-03": 208.2769,
+        "2012-04": 257.4559,
+        "2012-05": 264.1096,
+        "2012-06": 287.1864,
+        "2012-07": 267.0373,
+        "2012-08": 285.5702,
+        "2012-09": 292.5987,
+        "2012-10": 280.5088,
+        "2012-11": 231.9802,
+        "2012-12": 217.0548
+      },
+      "corr_pearson": {
+        "season": 0.1634,
+        "holiday": -0.0054,
+        "workingday": 0.0116,
+        "weather": -0.1287,
+        "temp": 0.3945,
+        "atemp": 0.3898,
+        "humidity": -0.3174,
+        "windspeed": 0.1014,
+        "hour": 0.4006,
+        "weekday": -0.0023,
+        "is_weekend": -0.0099,
+        "casual": 0.6904,
+        "registered": 0.9709
+      },
+      "corr_spearman": {
+        "season": 0.1764,
+        "holiday": -0.0016,
+        "workingday": -0.0004,
+        "weather": -0.1141,
+        "temp": 0.408,
+        "atemp": 0.4066,
+        "humidity": -0.354,
+        "windspeed": 0.1358,
+        "hour": 0.5155,
+        "weekday": 0.0135,
+        "is_weekend": 0.001,
+        "casual": 0.8474,
+        "registered": 0.9889
+      }
+    },
+    "test": {
+      "rows": 6493,
+      "columns": [
+        "datetime",
+        "season",
+        "holiday",
+        "workingday",
+        "weather",
+        "temp",
+        "atemp",
+        "humidity",
+        "windspeed"
+      ],
+      "derived_columns": [
+        "hour",
+        "weekday",
+        "is_weekend",
+        "month",
+        "year"
+      ],
+      "date_min": "2011-01-20T00:00:00",
+      "date_max": "2012-12-31T23:00:00",
+      "missing_total": 0,
+      "duplicate_datetime": 0,
+      "coverage": {
+        "unique_days": 275,
+        "expected_rows_if_24h_complete": 6600,
+        "missing_hours_vs_complete": 107,
+        "days_with_24h": 241,
+        "days_with_23h": 26,
+        "days_with_22h": 1,
+        "days_with_other": 7
+      }
+    },
+    "hour_reference": {
+      "rows": 17379,
+      "date_min": "2011-01-01T00:00:00",
+      "date_max": "2012-12-31T00:00:00",
+      "missing_total": 0,
+      "cnt_mean": 189.4631,
+      "unique_days": 731,
+      "missing_hours_vs_complete": 165
+    }
+  },
+  "hourly_profile": {
+    "Working day": {
+      "peak_hour": 17,
+      "peak_mean": 529.2090032154341,
+      "min_hour": 3,
+      "min_mean": 4.892733564013841,
+      "overall_mean": 193.01187263896384,
+      "rows": 7412
+    },
+    "Weekend / holiday": {
+      "peak_hour": 13,
+      "peak_mean": 387.82068965517243,
+      "min_hour": 4,
+      "min_mean": 8.544827586206896,
+      "overall_mean": 188.50662061024755,
+      "rows": 3474
+    }
+  },
+  "weekday_hour_heatmap": {
+    "max_weekday": "Tue",
+    "max_hour": 17,
+    "max_mean": 544.1692307692308,
+    "min_weekday": "Tue",
+    "min_hour": 3,
+    "min_mean": 4.0344827586206895,
+    "weekday_mean": {
+      "Mon": 189.332,
+      "Tue": 188.137,
+      "Wed": 187.357,
+      "Thu": 196.436,
+      "Fri": 196.97,
+      "Sat": 196.665,
+      "Sun": 180.366
+    }
+  },
+  "weather_analysis": {
+    "weather": {
+      "1": {
+        "rows": 7192,
+        "share_pct": 66.07,
+        "mean_count": 205.237,
+        "median_count": 161.0
+      },
+      "2": {
+        "rows": 2834,
+        "share_pct": 26.03,
+        "mean_count": 178.956,
+        "median_count": 134.0
+      },
+      "3": {
+        "rows": 859,
+        "share_pct": 7.89,
+        "mean_count": 118.846,
+        "median_count": 71.0
+      },
+      "4": {
+        "rows": 1,
+        "share_pct": 0.01,
+        "mean_count": 164.0,
+        "median_count": 164.0
+      }
+    },
+    "corr_pearson": {
+      "temp": 0.3945,
+      "humidity": -0.3174,
+      "windspeed": 0.1014
+    }
+  },
+  "daily_trend": {
+    "daily_total_mean": 4504.349,
+    "daily_total_min": 22,
+    "daily_total_max": 8714,
+    "monthly_mean_min": 55.507,
+    "monthly_mean_max": 303.574
+  },
+  "correlation": {
+    "pearson": {
+      "registered": 0.9709,
+      "casual": 0.6904,
+      "temp": 0.3945,
+      "atemp": 0.3898,
+      "hour": 0.4006,
+      "season": 0.1634,
+      "windspeed": 0.1014,
+      "workingday": 0.0116,
+      "holiday": -0.0054,
+      "weather": -0.1287,
+      "humidity": -0.3174
+    },
+    "spearman": {
+      "registered": 0.9889,
+      "casual": 0.8474,
+      "temp": 0.408,
+      "atemp": 0.4066,
+      "hour": 0.5155,
+      "season": 0.1764,
+      "windspeed": 0.1358,
+      "workingday": -0.0004,
+      "holiday": -0.0016,
+      "weather": -0.1141,
+      "humidity": -0.354
+    }
+  },
+  "folds": [
+    {
+      "fold": 0,
+      "train_rows": 5422,
+      "valid_rows": 908,
+      "train_start": "2011-01-01T00:00:00",
+      "train_end": "2011-12-19T23:00:00",
+      "valid_start": "2012-01-01T00:00:00",
+      "valid_end": "2012-02-19T23:00:00",
+      "train_months": [
+        "2011-01",
+        "2011-02",
+        "2011-03",
+        "2011-04",
+        "2011-05",
+        "2011-06",
+        "2011-07",
+        "2011-08",
+        "2011-09",
+        "2011-10",
+        "2011-11",
+        "2011-12"
+      ],
+      "valid_months": [
+        "2012-01",
+        "2012-02"
+      ]
+    },
+    {
+      "fold": 1,
+      "train_rows": 6330,
+      "valid_rows": 909,
+      "train_start": "2011-01-01T00:00:00",
+      "train_end": "2012-02-19T23:00:00",
+      "valid_start": "2012-03-01T00:00:00",
+      "valid_end": "2012-04-19T23:00:00",
+      "train_months": [
+        "2011-01",
+        "2011-02",
+        "2011-03",
+        "2011-04",
+        "2011-05",
+        "2011-06",
+        "2011-07",
+        "2011-08",
+        "2011-09",
+        "2011-10",
+        "2011-11",
+        "2011-12",
+        "2012-01",
+        "2012-02"
+      ],
+      "valid_months": [
+        "2012-03",
+        "2012-04"
+      ]
+    },
+    {
+      "fold": 2,
+      "train_rows": 7239,
+      "valid_rows": 912,
+      "train_start": "2011-01-01T00:00:00",
+      "train_end": "2012-04-19T23:00:00",
+      "valid_start": "2012-05-01T00:00:00",
+      "valid_end": "2012-06-19T23:00:00",
+      "train_months": [
+        "2011-01",
+        "2011-02",
+        "2011-03",
+        "2011-04",
+        "2011-05",
+        "2011-06",
+        "2011-07",
+        "2011-08",
+        "2011-09",
+        "2011-10",
+        "2011-11",
+        "2011-12",
+        "2012-01",
+        "2012-02",
+        "2012-03",
+        "2012-04"
+      ],
+      "valid_months": [
+        "2012-05",
+        "2012-06"
+      ]
+    },
+    {
+      "fold": 3,
+      "train_rows": 8151,
+      "valid_rows": 912,
+      "train_start": "2011-01-01T00:00:00",
+      "train_end": "2012-06-19T23:00:00",
+      "valid_start": "2012-07-01T00:00:00",
+      "valid_end": "2012-08-19T23:00:00",
+      "train_months": [
+        "2011-01",
+        "2011-02",
+        "2011-03",
+        "2011-04",
+        "2011-05",
+        "2011-06",
+        "2011-07",
+        "2011-08",
+        "2011-09",
+        "2011-10",
+        "2011-11",
+        "2011-12",
+        "2012-01",
+        "2012-02",
+        "2012-03",
+        "2012-04",
+        "2012-05",
+        "2012-06"
+      ],
+      "valid_months": [
+        "2012-07",
+        "2012-08"
+      ]
+    },
+    {
+      "fold": 4,
+      "train_rows": 9063,
+      "valid_rows": 1823,
+      "train_start": "2011-01-01T00:00:00",
+      "train_end": "2012-08-19T23:00:00",
+      "valid_start": "2012-09-01T00:00:00",
+      "valid_end": "2012-12-19T23:00:00",
+      "train_months": [
+        "2011-01",
+        "2011-02",
+        "2011-03",
+        "2011-04",
+        "2011-05",
+        "2011-06",
+        "2011-07",
+        "2011-08",
+        "2011-09",
+        "2011-10",
+        "2011-11",
+        "2011-12",
+        "2012-01",
+        "2012-02",
+        "2012-03",
+        "2012-04",
+        "2012-05",
+        "2012-06",
+        "2012-07",
+        "2012-08"
+      ],
+      "valid_months": [
+        "2012-09",
+        "2012-10",
+        "2012-11",
+        "2012-12"
+      ]
+    }
+  ],
+  "figures": [
+    "p1_correlation.png",
+    "p1_daily_trend_split.png",
+    "p1_hourly_profile.png",
+    "p1_target_distribution.png",
+    "p1_weather_temp_vs_count.png",
+    "p1_weekday_hour_heatmap.png"
+  ]
+}

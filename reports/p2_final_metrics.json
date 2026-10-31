@@ -1,0 +1,183 @@
+{
+  "generated_at": "2026-11-01T00:33:09",
+  "model": "lgbm",
+  "seed": 42,
+  "run_id": "lgbm_s42_20261031_235702_5d6e8f3390",
+  "params_hash": "5d6e8f3390",
+  "cv": {
+    "rmsle": 0.4242245278039526,
+    "mae": 51.56691267620697,
+    "rmse": 80.01415245312046,
+    "r2": 0.8521536857521748,
+    "n_oof": 5464,
+    "oof_coverage": 0.501929083226162
+  },
+  "fold_metrics": [
+    {
+      "rmsle": 0.7191049570971665,
+      "mae": 70.87328517109931,
+      "rmse": 101.22724754511762,
+      "r2": 0.33349775430992,
+      "fold": 0,
+      "n_train": 5422,
+      "n_valid": 908,
+      "valid_months": [
+        "2012-01",
+        "2012-02"
+      ]
+    },
+    {
+      "rmsle": 0.45858102081684354,
+      "mae": 77.05469861414761,
+      "rmse": 112.69442011846338,
+      "r2": 0.6859246905824252,
+      "fold": 1,
+      "n_train": 6330,
+      "n_valid": 909,
+      "valid_months": [
+        "2012-03",
+        "2012-04"
+      ]
+    },
+    {
+      "rmsle": 0.3090536507208997,
+      "mae": 38.79628825877809,
+      "rmse": 60.612791692534074,
+      "r2": 0.9264080966560568,
+      "fold": 2,
+      "n_train": 7239,
+      "n_valid": 912,
+      "valid_months": [
+        "2012-05",
+        "2012-06"
+      ]
+    },
+    {
+      "rmsle": 0.24749974638965586,
+      "mae": 38.412235320991726,
+      "rmse": 62.84005794228899,
+      "r2": 0.9159628946793638,
+      "fold": 3,
+      "n_train": 8151,
+      "n_valid": 912,
+      "valid_months": [
+        "2012-07",
+        "2012-08"
+      ]
+    },
+    {
+      "rmsle": 0.3139340180891803,
+      "mae": 42.211614581693055,
+      "rmse": 62.76422006404414,
+      "r2": 0.9151799795079587,
+      "fold": 4,
+      "n_train": 9063,
+      "n_valid": 1823,
+      "valid_months": [
+        "2012-09",
+        "2012-10",
+        "2012-11",
+        "2012-12"
+      ]
+    }
+  ],
+  "final_model": {
+    "train_rows": 10886,
+    "n_features": 36,
+    "params": {
+      "n_estimators": 800,
+      "learning_rate": 0.05,
+      "num_leaves": 31,
+      "min_child_samples": 30,
+      "subsample": 0.8,
+      "subsample_freq": 1,
+      "colsample_bytree": 0.8,
+      "objective": "poisson",
+      "n_jobs": -1,
+      "verbose": -1,
+      "target_transform": "none"
+    },
+    "feature_builder": {
+      "use_target_aggregates": true,
+      "smooth": 20.0
+    }
+  },
+  "submission": {
+    "path": "/root/code/bike-sharing-demand/reports/submission.csv",
+    "rows": 6493,
+    "min": 2.2864467327109423,
+    "max": 942.8629812795558,
+    "mean": 187.6564819370125,
+    "median": 145.95157970640471,
+    "std": 172.69257661375798,
+    "nan": 0,
+    "negative": 0,
+    "first_datetime": "2011-01-20 00:00:00",
+    "last_datetime": "2012-12-31 23:00:00",
+    "by_month_path": "/root/code/bike-sharing-demand/reports/p2_submission_by_month.csv"
+  },
+  "oof": {
+    "path": "/root/code/bike-sharing-demand/reports/oof/final_oof.parquet",
+    "rows": 5464,
+    "nan": 0,
+    "row_min": 5422,
+    "row_max": 10885,
+    "first_datetime": "2012-01-01 00:00:00",
+    "last_datetime": "2012-12-19 23:00:00"
+  },
+  "feature_importance": {
+    "path": "/root/code/bike-sharing-demand/reports/p2_feature_importance.csv",
+    "top10": [
+      {
+        "feature": "hour_workingday_mean",
+        "importance": 8436226.107737064,
+        "split": 1164
+      },
+      {
+        "feature": "hour_x_workingday",
+        "importance": 2110145.881601572,
+        "split": 2880
+      },
+      {
+        "feature": "year",
+        "importance": 993101.0974574089,
+        "split": 656
+      },
+      {
+        "feature": "temp_x_season",
+        "importance": 567382.9097743034,
+        "split": 1134
+      },
+      {
+        "feature": "dayofyear",
+        "importance": 548656.3676240444,
+        "split": 1403
+      },
+      {
+        "feature": "temp",
+        "importance": 333087.7477827072,
+        "split": 1050
+      },
+      {
+        "feature": "humidity_x_weather",
+        "importance": 327711.761885643,
+        "split": 2127
+      },
+      {
+        "feature": "hour_mean",
+        "importance": 265676.97066760063,
+        "split": 366
+      },
+      {
+        "feature": "atemp",
+        "importance": 140322.9243836403,
+        "split": 920
+      },
+      {
+        "feature": "hour",
+        "importance": 84509.61701798439,
+        "split": 633
+      }
+    ]
+  }
+}
