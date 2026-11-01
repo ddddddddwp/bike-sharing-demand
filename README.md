@@ -67,6 +67,12 @@ See `reports/extension_report.md` for:
 - temporal drift (static vs expanding vs sliding)
 - multi-seed stability + bootstrap CI
 
+
+## Reproducibility
+
+See `docs/reproduce.md` for the full reproduction record on the local RTX 5060 machine
+(submission is byte-identical, OOF max abs diff = 0, verify 52/52).
+
 ## Layout
 
 ```
