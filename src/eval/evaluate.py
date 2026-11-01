@@ -213,6 +213,7 @@ def _write_summary(
     seg: pd.DataFrame,
     n_train: int,
     n_oof: int,
+    scope: dict,
     warnings: list[str],
 ):
     lines: list[str] = []
@@ -223,7 +224,9 @@ def _write_summary(
     else:
         lines.append("> 状态：**SMOKE**（未找到 P2 final OOF，当前为临时 quick baseline，数字不可用于最终结论）")
     lines.append(f"> OOF：`{oof_path}`  ")
-    lines.append(f"> 训练集：{n_train:,} 行；OOF：{n_oof:,} 行（覆盖率 {n_oof / n_train:.1%}）  ")
+    lines.append(f"> OOF 日期：{str(scope.get('date_min', '—'))[:10]} ~ {str(scope.get('date_max', '—'))[:10]}，"
+                 f"各月 {scope.get('day_min', '—')}–{scope.get('day_max', '—')} 日  ")
+    lines.append(f"> 训练集：{n_train:,} 行；OOF：{n_oof:,} 行（覆盖率 {n_oof / n_train:.2%}）  ")
     lines.append("> 预测统一裁剪到 `>= 0`；RMSLE 在 `log1p` 空间计算。")
     lines.append("")
     lines.append("## 1. 总体指标")
@@ -367,6 +370,14 @@ def main(argv=None) -> int:
         figures.append(str(hour_rmsle_fig))
 
     fold_rmsle = [f["rmsle"] for f in folds_out if f.get("rmsle") is not None]
+    oof_dt = pd.to_datetime(merged["datetime"])
+    oof_scope = {
+        "date_min": str(oof_dt.min()),
+        "date_max": str(oof_dt.max()),
+        "n_months": int(oof_dt.dt.to_period("M").nunique()),
+        "day_min": int(oof_dt.dt.day.min()),
+        "day_max": int(oof_dt.dt.day.max()),
+    }
     payload = {
         "status": status,
         "generated_at": U.utc_now(),
@@ -374,6 +385,7 @@ def main(argv=None) -> int:
         "oof_path": str(oof_path),
         "oof_source": source,
         "oof_diagnostics": diag,
+        "oof_scope": oof_scope,
         "n_train": int(len(train)),
         "n_oof": int(len(merged)),
         "coverage_of_train": float(len(merged) / len(train)),
@@ -384,6 +396,7 @@ def main(argv=None) -> int:
         "residuals": resid,
         "folds": folds_out,
         "fold_summary": {
+            "n_folds": int(len(folds_out)),
             "mean_rmsle": float(np.mean(fold_rmsle)) if fold_rmsle else None,
             "std_rmsle": float(np.std(fold_rmsle)) if fold_rmsle else None,
             "min_rmsle": float(np.min(fold_rmsle)) if fold_rmsle else None,
@@ -396,7 +409,8 @@ def main(argv=None) -> int:
             "RMSLE / MAE / RMSE / R² 均基于 OOF 验证行，预测先裁剪到 >= 0。",
             "分折指标按 splits/time_folds.json 的 valid_idx 选取 OOF 行；折间验证月份不重叠。",
             "分群指标基于 processed train 的 datetime / weather / workingday 字段。",
-            "OOF 只覆盖 2012 年各月 1–19 日（与 Kaggle 训练集切分一致），不能代表 20 日之后的分布。",
+            f"OOF 覆盖 {oof_scope['date_min'][:10]} ~ {oof_scope['date_max'][:10]}，"
+            f"各月 {oof_scope['day_min']}–{oof_scope['day_max']} 日；不能代表 20 日之后的分布。",
         ],
     }
     metrics_path = out_dir / "metrics.json"
@@ -413,6 +427,7 @@ def main(argv=None) -> int:
         seg,
         len(train),
         len(merged),
+        oof_scope,
         warnings,
     )
 

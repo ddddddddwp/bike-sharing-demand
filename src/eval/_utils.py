@@ -159,6 +159,10 @@ def fold_table(cfg: dict) -> tuple[list[dict], dict]:
     rows: list[dict] = []
     for i, (tr_idx, va_idx) in enumerate(folds):
         va = train.iloc[va_idx]
+        meta = payload.get("folds", [])[i] if i < len(payload.get("folds", [])) else {}
+        valid_months = meta.get("valid_months")
+        if valid_months is None:
+            valid_months = [str(x) for x in sorted(pd.to_datetime(va["datetime"]).dt.to_period("M").unique())]
         rows.append(
             {
                 "fold": i,
@@ -168,7 +172,7 @@ def fold_table(cfg: dict) -> tuple[list[dict], dict]:
                 "n_valid": int(len(va_idx)),
                 "valid_start": str(pd.to_datetime(va["datetime"]).min()),
                 "valid_end": str(pd.to_datetime(va["datetime"]).max()),
-                "valid_months": sorted(int(x) for x in pd.to_datetime(va["datetime"]).dt.month.unique()),
+                "valid_months": [str(x) for x in valid_months],
             }
         )
     return rows, payload

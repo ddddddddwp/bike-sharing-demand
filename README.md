@@ -16,6 +16,14 @@ The data is split by time: train = first 19 days of each month, test = 20th–en
 - Secondary: MAE, RMSE, R²
 - Predictions clipped to >= 0; `casual` and `registered` are never used as features.
 
+
+## Validation
+
+- `splits/time_folds.json` (`time_v2`): 5 expanding-window folds by month.
+- Validation starts at 2011-07, so OOF covers **8,196 / 10,886 rows (75.3%)**.
+- Final model trains on all 10,886 rows and predicts the 6,493-row test set.
+- No random KFold; no shuffling across time.
+
 ## Commands
 
 ```bash
@@ -31,6 +39,21 @@ make report    # P3 report (generated)
 make verify    # acceptance checks
 make test      # pytest
 make all       # full pipeline
+```
+
+
+## Official Kaggle data
+
+The current `data/raw/train.csv` / `test.csv` were rebuilt from the UCI source using the exact
+Kaggle split (10,886 / 6,493 rows). To switch to the official Kaggle files:
+
+1. Kaggle -> Account -> Settings -> API -> Create New API Token
+2. Put `kaggle.json` at `~/.kaggle/kaggle.json`
+3. Run:
+
+```bash
+python3 scripts/fetch_kaggle.py --replace
+make data && make compare && make predict && make eval && make report
 ```
 
 ## Layout

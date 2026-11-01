@@ -189,7 +189,12 @@ def _write_summary(
         "- 表中只使用 OOF 预测与原始特征，不包含 `casual` / `registered`，避免把目标分解信息带入诊断结论。"
     )
     lines.append(
-        "- OOF 仅覆盖 2012 年各月 1–19 日；badcase 的日期/天气集中度可能反映该切分窗口，而非全年分布。"
+        "- OOF 覆盖 "
+        f"{pd.to_datetime(merged['datetime']).min():%Y-%m-%d} ~ "
+        f"{pd.to_datetime(merged['datetime']).max():%Y-%m-%d}，各月 "
+        f"{int(pd.to_datetime(merged['datetime']).dt.day.min())}–"
+        f"{int(pd.to_datetime(merged['datetime']).dt.day.max())} 日；"
+        "badcase 的日期/天气集中度可能反映该切分窗口，而非全年分布。"
     )
     lines.append(
         "- 若某天气类别样本极少（如 weather=4），对应分群指标不稳定，应结合样本量阅读。"

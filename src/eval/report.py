@@ -64,6 +64,47 @@ def _best_worst(seg: pd.DataFrame | None, name: str, min_n: int = 30):
     return s.loc[s["rmsle"].idxmin()], s.loc[s["rmsle"].idxmax()]
 
 
+def _month_span(months) -> str:
+    vals = [str(m) for m in months]
+    if not vals:
+        return "—"
+    return vals[0] if len(vals) == 1 else f"{vals[0]} ~ {vals[-1]}"
+
+
+def _scope_from_folds(cfg: dict, folds: list[dict]) -> dict:
+    train = U.load_train(cfg)
+    if folds:
+        idx = np.concatenate([np.asarray(f["valid_idx"], dtype=int) for f in folds])
+    else:
+        idx = np.array([], dtype=int)
+    dt = pd.to_datetime(train.iloc[idx]["datetime"]) if len(idx) else pd.Series(dtype="datetime64[ns]")
+    return {
+        "date_min": str(dt.min()) if len(dt) else "—",
+        "date_max": str(dt.max()) if len(dt) else "—",
+        "n_oof": int(len(idx)),
+        "n_train": int(len(train)),
+        "coverage_of_train": float(len(idx) / len(train)) if len(train) else float("nan"),
+        "day_min": int(dt.dt.day.min()) if len(dt) else "—",
+        "day_max": int(dt.dt.day.max()) if len(dt) else "—",
+    }
+
+
+def _get_scope(metrics: dict | None, cfg: dict, folds: list[dict]) -> dict:
+    scope = (metrics or {}).get("oof_scope")
+    if scope and scope.get("date_min"):
+        return scope
+    return _scope_from_folds(cfg, folds)
+
+
+def _scope_text(scope: dict) -> str:
+    if not scope:
+        return "验证折覆盖范围"
+    return (
+        f"{str(scope.get('date_min', '—'))[:10]} ~ {str(scope.get('date_max', '—'))[:10]}，"
+        f"各月 {scope.get('day_min', '—')}–{scope.get('day_max', '—')} 日"
+    )
+
+
 def _fold_table(folds: list[dict], metrics: dict | None) -> list[str]:
     lines = ["| Fold | 验证窗口 | n | RMSLE | MAE | RMSE | R² |", "|---:|---|---:|---:|---:|---:|---:|"]
     for f in folds:
@@ -80,6 +121,10 @@ def _fold_table(folds: list[dict], metrics: dict | None) -> list[str]:
 
 
 def _build_pending(cfg: dict, folds: list[dict], metrics_path: Path, out_path: Path) -> str:
+    scope = _scope_from_folds(cfg, folds)
+    month_counts = [len(f["valid_months"]) for f in folds] or [0]
+    span = f"{min(month_counts)}–{max(month_counts)}" if min(month_counts) != max(month_counts) else str(min(month_counts))
+    last_fold = folds[-1] if folds else None
     lines: list[str] = []
     A = lines.append
     A("# Bike Sharing Demand — P3 评估与解释报告")
@@ -111,16 +156,16 @@ def _build_pending(cfg: dict, folds: list[dict], metrics_path: Path, out_path: P
     A("2012-12-19 的小时记录，共 10,886 行；测试集为各月 20 日之后的 6,493 行。")
     A("训练/测试切分与 Kaggle 一致，不做随机重排。")
     A("")
-    A("本地验证使用 `splits/time_folds.json` 的 5 折 expanding-window：每折用历史")
-    A("月份训练，用紧接着的两个月（最后一折四个月）验证。验证行是 processed train")
+    A(f"本地验证使用 `splits/time_folds.json` 的 {len(folds)} 折 expanding-window：每折用历史")
+    A(f"月份训练，用紧接着的连续 {span} 个月验证。验证行是 processed train")
     A("的位置索引，OOF 的 `row` 字段与之一一对应。")
     A("")
-    A("| Fold | 训练月份 | 验证月份 | 验证行数 | 验证窗口 |")
-    A("|---:|---:|---:|---:|---|")
+    A("| Fold | 训练行数 | 验证月份 | 验证行数 | 验证窗口 |")
+    A("|---:|---:|---|---:|---|")
     for f in folds:
         A(
-            f"| {f['fold']} | 2011-01 起共 {f['n_train']:,} 行 | "
-            f"{', '.join(str(m) for m in f['valid_months'])} 月 | {f['n_valid']:,} | "
+            f"| {f['fold']} | 历史累计 {f['n_train']:,} 行 | "
+            f"{_month_span(f['valid_months'])} | {f['n_valid']:,} | "
             f"{f['valid_start'][:10]} ~ {f['valid_end'][:10]} |"
         )
     A("")
@@ -148,7 +193,10 @@ def _build_pending(cfg: dict, folds: list[dict], metrics_path: Path, out_path: P
     A("")
     A("### 1.4 评估范围")
     A("")
-    A("OOF 只覆盖 2012 年各月 1–19 日，共 5,464 行（约占训练集 50.2%）。")
+    A(
+        f"OOF 覆盖 {_scope_text(scope)}，共 {scope['n_oof']:,} / "
+        f"{scope.get('n_train', 0):,} 行（{scope['coverage_of_train']:.2%}）。"
+    )
     A("它适合比较时间外推与折间稳定性，但不能直接代表 Kaggle 测试集 20 日之后的")
     A("分布，也不能替代线上 leaderboard。")
     A("")
@@ -173,7 +221,11 @@ def _build_pending(cfg: dict, folds: list[dict], metrics_path: Path, out_path: P
     A("### 2.3 稳定性判据")
     A("")
     A("建议同时报告：折间 RMSLE 的均值、标准差、最差折；以及相对 P1 baseline 的")
-    A("提升。单看总体 OOF 容易掩盖最后一折（2012-09~12）的分布漂移。")
+    A(
+        "提升。单看总体 OOF 容易掩盖最后一段验证窗口"
+        + (f"（{last_fold['valid_start'][:10]} ~ {last_fold['valid_end'][:10]}）" if last_fold else "")
+        + "的分布漂移。"
+    )
     A("")
     A("## 3. 残差分析")
     A("")
@@ -293,10 +345,11 @@ def _build_pending(cfg: dict, folds: list[dict], metrics_path: Path, out_path: P
     A("")
     A("1. **折间方差**：expanding-window 的验证月份不同，季节效应会导致 RMSLE 波动；")
     A("   应报告均值 ± 标准差，并检查最差折。")
-    A("2. **时间漂移**：2012 年需求整体高于 2011 年，若模型过度依赖 `year` 或目标")
+    A("2. **时间漂移**：需求整体随时间增长，若模型过度依赖 `year` 或目标")
     A("   聚合，可能在更远的未来退化。")
     A("3. **天气长尾**：weather=4 样本极少，任何分群结论都不稳定。")
-    A("4. **OOF 覆盖偏差**：只覆盖每月 1–19 日，不能代表 20 日之后；Kaggle 测试集")
+    A("4. **OOF 覆盖偏差**：OOF 覆盖 "
+      f"{_scope_text(scope)}，不能代表 20 日之后；Kaggle 测试集")
     A("   的时间分布可能略有不同。")
     A("5. **目标聚合泄漏风险**：`FeatureBuilder` 的聚合在折内是安全的，但全量 SHAP")
     A("   模型使用全量聚合，解释时需注意。")
@@ -356,6 +409,13 @@ def _build_full(
     overall = metrics["overall"]
     resid = metrics["residuals"]
     status = metrics.get("status", "UNKNOWN")
+    scope = _get_scope(metrics, cfg, folds)
+    month_counts = [len(f["valid_months"]) for f in folds] or [0]
+    span = f"{min(month_counts)}–{max(month_counts)}" if min(month_counts) != max(month_counts) else str(min(month_counts))
+    folds_metrics = [f for f in metrics.get("folds", []) if f.get("rmsle") is not None]
+    worst_fold = max(folds_metrics, key=lambda x: x["rmsle"]) if folds_metrics else None
+    best_fold = min(folds_metrics, key=lambda x: x["rmsle"]) if folds_metrics else None
+    bias_fold = min(folds_metrics, key=lambda x: x.get("bias", 0.0)) if folds_metrics else None
     lines: list[str] = []
     A = lines.append
     A("# Bike Sharing Demand — P3 评估与解释报告")
@@ -377,7 +437,7 @@ def _build_full(
     fs = metrics.get("fold_summary", {})
     if fs.get("mean_rmsle") is not None:
         A(
-            f"5 折 RMSLE 均值 {U.fmt(fs['mean_rmsle'], 5)}，标准差 {U.fmt(fs['std_rmsle'], 5)}，"
+            f"{len(folds_metrics)} 折 RMSLE 均值 {U.fmt(fs['mean_rmsle'], 5)}，标准差 {U.fmt(fs['std_rmsle'], 5)}，"
             f"范围 {U.fmt(fs['min_rmsle'], 5)} ~ {U.fmt(fs['max_rmsle'], 5)}。"
         )
     A(
@@ -393,9 +453,6 @@ def _build_full(
             f"其中低估 {int((bad['log_error'] < 0).sum())} 行、高估 {int((bad['log_error'] >= 0).sum())} 行。"
         )
     A("")
-    folds_metrics = [f for f in metrics.get("folds", []) if f.get("rmsle") is not None]
-    worst_fold = max(folds_metrics, key=lambda x: x["rmsle"]) if folds_metrics else None
-    best_fold = min(folds_metrics, key=lambda x: x["rmsle"]) if folds_metrics else None
     A("**结论：** 模型的排序能力较好（Spearman "
       f"{U.fmt(resid['spearman_actual_pred'], 3)}），但存在明显的**系统性低估**："
       f"平均偏差 {U.fmt(overall['bias'], 1)}，低估比例 {resid['under_rate']:.1%}。")
@@ -406,7 +463,13 @@ def _build_full(
             f"最小的是 fold {best_fold['fold']}（RMSLE={U.fmt(best_fold['rmsle'], 4)}）。"
         )
     A("主要风险是系统性偏差、低流量时段的相对误差、天气长尾类别，以及训练窗口外推")
-    A("（尤其 fold 0 仅用 2011 年训练、验证 2012 年初）带来的季节/增长漂移。具体数字见下文。")
+    if worst_fold is not None:
+        A(
+            f"（尤其 fold {worst_fold['fold']}，验证窗口 {worst_fold['valid_start'][:10]} ~ "
+            f"{worst_fold['valid_end'][:10]}）带来的季节/增长漂移。具体数字见下文。"
+        )
+    else:
+        A("带来的季节/增长漂移。具体数字见下文。")
     A("")
     A("## 1. 评估协议")
     A("")
@@ -415,15 +478,15 @@ def _build_full(
     A("训练集为 2011-01-01 至 2012-12-19 的 10,886 条小时记录；测试集为各月 20 日")
     A("之后的 6,493 条记录。切分与 Kaggle 一致，不做随机重排。")
     A("")
-    A("本地验证使用 5 折 expanding-window：每折用历史月份训练，用紧接着的两个月")
-    A("（最后一折四个月）验证。OOF 的 `row` 是 processed train 的位置索引。")
+    A(f"本地验证使用 {len(folds)} 折 expanding-window：每折用历史月份训练，用紧接着的连续")
+    A(f"{span} 个月验证。OOF 的 `row` 是 processed train 的位置索引。")
     A("")
-    A("| Fold | 训练行数 | 验证行数 | 验证月份 | 验证窗口 |")
-    A("|---:|---:|---:|---|---|")
+    A("| Fold | 训练行数 | 验证月份 | 验证行数 | 验证窗口 |")
+    A("|---:|---:|---|---:|---|")
     for f in folds:
         A(
-            f"| {f['fold']} | {f['n_train']:,} | {f['n_valid']:,} | "
-            f"{', '.join(str(m) for m in f['valid_months'])} 月 | "
+            f"| {f['fold']} | 历史累计 {f['n_train']:,} 行 | "
+            f"{_month_span(f['valid_months'])} | {f['n_valid']:,} | "
             f"{f['valid_start'][:10]} ~ {f['valid_end'][:10]} |"
         )
     A("")
@@ -449,10 +512,10 @@ def _build_full(
     A("### 1.4 评估范围与覆盖")
     A("")
     A(
-        f"OOF 共 {metrics.get('n_oof', 0):,} 行，覆盖训练集 {metrics.get('coverage_of_train', 0):.1%}；"
+        f"OOF 共 {metrics.get('n_oof', 0):,} 行，覆盖训练集 {metrics.get('coverage_of_train', 0):.2%}；"
         f"OOF 源：`{metrics.get('oof_source', 'unknown')}`。"
     )
-    A("OOF 只覆盖 2012 年各月 1–19 日，不能代表 20 日之后的分布，也不能替代 leaderboard。")
+    A(f"OOF 覆盖 {_scope_text(scope)}，不能代表 20 日之后的分布，也不能替代 leaderboard。")
     A("")
     A("## 2. 主结果")
     A("")
@@ -481,8 +544,9 @@ def _build_full(
         )
         if worst_fold is not None:
             A(
-                f"最差折 fold {worst_fold['fold']} 的训练窗口最早、验证 2012 年初；"
-                "该折误差显著高于其余折，说明年初需求增长的外推是主要风险。"
+                f"最差折 fold {worst_fold['fold']} 的验证窗口为 "
+                f"{worst_fold['valid_start'][:10]} ~ {worst_fold['valid_end'][:10]}；"
+                "该折误差显著高于其余折，说明该时间窗口的季节/年度外推是主要风险。"
             )
     A("")
     A("## 3. 残差分析")
@@ -658,9 +722,9 @@ def _build_full(
     A("## 7. 稳定性与风险")
     A("")
     A("1. **折间方差**：验证月份不同，季节效应导致 RMSLE 波动；应看均值 ± 标准差与最差折。")
-    A("2. **时间漂移**：2012 年需求高于 2011 年，过度依赖 `year` 或目标聚合可能在外推时退化。")
+    A("2. **时间漂移**：需求整体随时间增长，过度依赖 `year` 或目标聚合可能在外推时退化。")
     A("3. **天气长尾**：weather=4 样本极少，分群结论不稳定。")
-    A("4. **OOF 覆盖偏差**：只覆盖每月 1–19 日，不能代表 20 日之后。")
+    A(f"4. **OOF 覆盖偏差**：OOF 覆盖 {_scope_text(scope)}，不能代表 20 日之后。")
     A("5. **目标聚合泄漏风险**：折内聚合安全，但全量 SHAP 模型使用全量聚合，解释需谨慎。")
     A("6. **指标与训练目标**：若 P2 使用 Poisson 目标而评估用 RMSLE，二者不完全一致。")
     A("")
@@ -677,7 +741,8 @@ def _build_full(
             A(
                 f"- 若在 OOF 上做全局乘性校正 `exp({-mean_log:.4f})={factor:.3f}`，"
                 f"OOF RMSLE 可降到约 **{std_log:.3f}**（即 log 残差标准差）；"
-                "但这是用 2012 验证标签拟合的，测试集横跨 2011–2012，2011 需求更低，"
+                f"但这是用 OOF 验证标签（{str(scope.get('date_min', '—'))[:7]} 起）拟合的，"
+                "测试集横跨 2011–2012，2011 上半年需求更低，"
                 "直接套用会系统性高估 2011。最终 `submission.csv` 未做该校正；"
                 "正确做法是按年份/季节分层校准，并需要独立验证集。"
             )
@@ -686,11 +751,21 @@ def _build_full(
                 s = pd.read_csv(sub_path)
                 train_path = path_of(cfg, "processed_dir") / "train.parquet"
                 train_mean = float(pd.read_parquet(train_path)["count"].mean())
-                A(
-                    f"- 最终提交均值 **{s['count'].mean():.3f}**，训练集均值 "
-                    f"**{train_mean:.3f}**；OOF 的整体低估主要来自 2012 年 fold 0 的"
-                    "年度增长外推，不能直接外推到全量提交。"
-                )
+                if worst_fold is not None and bias_fold is not None:
+                    A(
+                        f"- 最终提交均值 **{s['count'].mean():.3f}**，训练集均值 "
+                        f"**{train_mean:.3f}**；OOF 的整体低估主要来自 fold "
+                        f"{worst_fold['fold']}（RMSLE 最高，{worst_fold['valid_start'][:7]} ~ "
+                        f"{worst_fold['valid_end'][:7]}）与 fold {bias_fold['fold']}"
+                        f"（平均偏差 {bias_fold.get('bias', 0.0):.1f}，"
+                        f"{bias_fold['valid_start'][:7]} ~ {bias_fold['valid_end'][:7]}），"
+                        "不能直接外推到全量提交。"
+                    )
+                else:
+                    A(
+                        f"- 最终提交均值 **{s['count'].mean():.3f}**，训练集均值 "
+                        f"**{train_mean:.3f}**；OOF 的整体低估主要来自时间外推，不能直接外推到全量提交。"
+                    )
         A("")
     A("## 8. 局限与后续工作")
     A("")

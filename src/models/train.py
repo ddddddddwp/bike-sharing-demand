@@ -333,13 +333,16 @@ def run_cv(cfg: dict, model: str = "lgbm", seed: int = 42, log: bool = True) -> 
                 f"| RMSLE={fm['rmsle']:.5f} MAE={fm['mae']:.3f} RMSE={fm['rmse']:.3f} R2={fm['r2']:.4f}"
             )
 
-    # Expanding-window folds never validate the first 12 months (there is no
-    # earlier training window), so OOF legitimately covers only 2012 onward.
+    # Expanding-window folds cannot validate the earliest months because no
+    # earlier training window exists, so OOF covers only the validation span.
     mask = ~np.isnan(oof)
     if not mask.any():
         raise RuntimeError("OOF is empty; no validation predictions were produced")
     n_oof = int(mask.sum())
     coverage = n_oof / len(train)
+    oof_datetimes = pd.to_datetime(train.loc[np.arange(len(train))[mask], "datetime"])
+    oof_start = oof_datetimes.min().strftime("%Y-%m")
+    oof_end = oof_datetimes.max().strftime("%Y-%m")
     pooled = _metrics(y[mask], oof[mask])
     phash = params_hash(cfg, model)
     run_id = _make_run_id(model, seed, phash)
@@ -358,7 +361,7 @@ def run_cv(cfg: dict, model: str = "lgbm", seed: int = 42, log: bool = True) -> 
 
     notes = (
         f"5-fold expanding-window time CV; pooled OOF on {n_oof}/{len(train)} rows "
-        f"({coverage:.1%}, 2012-01 onward); "
+        f"({coverage:.1%}, {oof_start} to {oof_end}); "
         f"target={target}; objective={model_params(cfg, model).get('objective', 'n/a')}; "
         f"n_features={n_features}"
     )

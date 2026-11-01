@@ -29,12 +29,13 @@ Full UCI data (17,379 rows) is available at `data/raw/hour.csv` for EDA/referenc
 
 `splits/time_folds.json` contains 5 expanding-window folds by month (rows are positional indices into `data/processed/train.parquet`):
 
-- fold 0: train 2011-01..2011-12, valid 2012-01..2012-02
-- fold 1: train 2011-01..2012-02, valid 2012-03..2012-04
-- fold 2: train 2011-01..2012-04, valid 2012-05..2012-06
-- fold 3: train 2011-01..2012-06, valid 2012-07..2012-08
-- fold 4: train 2011-01..2012-08, valid 2012-09..2012-12
+- fold 0: train 2011-01..2011-06, valid 2011-07..2011-10
+- fold 1: train 2011-01..2011-10, valid 2011-11..2012-02
+- fold 2: train 2011-01..2012-02, valid 2012-03..2012-06
+- fold 3: train 2011-01..2012-06, valid 2012-07..2012-09
+- fold 4: train 2011-01..2012-09, valid 2012-10..2012-12
 
+This is `time_v2`: validation starts earlier (2011-07), so OOF covers 8,196 / 10,886 rows (75.3%) instead of 50.2%.
 Final model: train on all 10,886 rows, predict `test.csv`.
 No random KFold. No shuffling across time.
 

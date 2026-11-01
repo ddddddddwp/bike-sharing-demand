@@ -54,6 +54,7 @@ def main() -> None:
     payload = json.loads(fp.read_text(encoding="utf-8"))
     folds = payload.get("folds", [])
     ck("时间折 = 5", len(folds) == 5, str(len(folds)))
+    ck("划分版本 = time_v2", payload.get("version") == "time_v2", str(payload.get("version")))
     for i, f in enumerate(folds):
         tr_idx = np.asarray(f["train_idx"])
         va_idx = np.asarray(f["valid_idx"])
@@ -78,7 +79,7 @@ def main() -> None:
     if oof.exists():
         o = pd.read_parquet(oof)
         ck("OOF 行数 >= 5,000（时间 CV 允许部分覆盖）", len(o) >= 5000, str(len(o)))
-        ck("OOF 覆盖率 >= 50%", len(o) / 10886 >= 0.5, f"{len(o)/10886:.2%}")
+        ck("OOF 覆盖率 >= 75%", len(o) / 10886 >= 0.75, f"{len(o)/10886:.2%}")
         ck("OOF 列含 row,y,pred", {"row", "y", "pred"} <= set(o.columns), str(list(o.columns)))
         ck("OOF row 唯一", o["row"].is_unique)
         ck("OOF row 在 [0, 10886)", bool((o["row"] >= 0).all() and (o["row"] < 10886).all()))
