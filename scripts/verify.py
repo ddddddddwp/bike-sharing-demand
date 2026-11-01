@@ -101,8 +101,10 @@ def main() -> None:
         ck(f"figures/{name} 存在", (reports / "figures" / name).exists())
     ck("extension_report.md 存在", (reports / "extension_report.md").exists())
 
-    for name in ("p1_data_report.md", "p2_model_report.md", "p3_eval_report.md"):
+    for name in ("p1_data_report.md", "p2_model_report.md", "p3_eval_report.md",
+                 "PROJECT_INDEX.md", "model_algorithm_comparison.md"):
         ck(f"{name} 存在", (reports / name).exists())
+    ck("docs/reproduce.md 存在", (ROOT / "docs" / "reproduce.md").exists())
 
     print("=" * 64)
     passed = sum(ok for ok, _, _ in RESULTS)

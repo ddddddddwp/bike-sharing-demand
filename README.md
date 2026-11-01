@@ -75,7 +75,13 @@ See `reports/extension_report.md` for:
 ## Reproducibility
 
 See `docs/reproduce.md` for the full reproduction record on the local RTX 5060 machine
-(submission is byte-identical, OOF max abs diff = 0, verify 52/52).
+(submission is byte-identical, OOF max abs diff = 0, verify 55/55).
+
+
+## Documentation index
+
+- `reports/PROJECT_INDEX.md` — 项目总索引（报告、图、数据、命令、清理记录）
+- `reports/model_algorithm_comparison.md` — 模型/算法宽度对比（GPU 素材）
 
 ## Layout
 

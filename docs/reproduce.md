@@ -34,7 +34,7 @@ make all
 | OOF RMSLE | **0.399734** |
 | MAE / RMSE / R² | 46.585963 / 73.610832 / 0.851884 |
 | 横向实验 A/B/D/E 数值 | 与主仓库 **完全一致**（C 的延迟因机器负载有波动） |
-| `scripts/verify.py` | **52/52 通过** |
+| `scripts/verify.py` | **55/55 通过** |
 | `pytest` | **5 passed** |
 
 复现副本位于 `/tmp/opencode/repro_bike`（临时目录，可删除）。
