@@ -63,8 +63,11 @@ device_type='gpu' -> LightGBMError: No OpenCL device found
 
 ```bash
 pip install -r requirements-gpu.txt
-make gpu
+make gpu      # XGBoost CPU/CUDA + 200k 行压力测试
+make zoo      # LightGBM/XGBoost/CatBoost/Ridge/RF 模型族宽度
 ```
+
+模型族宽度里最值得注意的一条：**XGBoost CUDA depth=4 的 CV RMSLE 为 0.39444，略优于 LightGBM 0.39973**，但训练慢约 1.85 倍；CatBoost 默认配置明显弱（CPU 0.586、GPU 0.815），不作为候选。
 
 报告里不要写“主模型用了 GPU 加速”，只能写“在 RTX 5060 机器上完成 CPU 主流程 + 额外 GPU 对比实验”。
 

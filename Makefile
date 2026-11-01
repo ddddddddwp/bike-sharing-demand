@@ -1,7 +1,7 @@
 PY ?= python3
 export PYTHONPATH := .
 
-.PHONY: data eda train compare predict eval shap badcase report ext gpu all verify test
+.PHONY: data eda train compare predict eval shap badcase report ext gpu zoo all verify test
 
 data:
 	$(PY) -m src.data.make_dataset --config configs/base.yaml
@@ -35,6 +35,9 @@ ext:
 
 gpu:
 	$(PY) scripts/gpu_benchmark.py --scaling
+
+zoo:
+	$(PY) scripts/model_zoo_benchmark.py
 
 verify:
 	$(PY) scripts/verify.py --config configs/base.yaml

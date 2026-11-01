@@ -38,6 +38,7 @@ make badcase   # P3 badcase
 make report    # P3 report (generated)
 make ext       # horizontal extensions: hyperparam / ablation / efficiency / drift / stability
 make gpu       # optional: XGBoost CPU vs RTX 5060 GPU benchmark
+make zoo       # optional: LightGBM/XGBoost/CatBoost/Ridge/RF breadth (GPU/CPU)
 make verify    # acceptance checks
 make test      # pytest
 make all       # full pipeline
@@ -67,6 +68,8 @@ See `reports/extension_report.md` for:
 - model efficiency / lightweight model
 - temporal drift (static vs expanding vs sliding)
 - multi-seed stability + bootstrap CI
+- RTX 5060 GPU vs CPU benchmark
+- model / algorithm breadth (LightGBM / XGBoost / CatBoost / Ridge / RF)
 
 
 ## Reproducibility

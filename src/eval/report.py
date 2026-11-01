@@ -812,6 +812,8 @@ def _build_full(
     A("  RF 46.6 MB / 151.7ms/1k，不适合部署。")
     A("- GPU：XGBoost CUDA 在 10,886 行上约 13.3s，慢于 CPU 4.9s；")
     A("  200k 行合成压力测试 2.3s vs 3.6–5.0s，GPU 约 1.6–2.2 倍加速；主模型继续 CPU。")
+    A("- 模型族宽度：XGBoost CUDA depth=4 为 0.39444，略优于 LightGBM 0.39973，")
+    A("  但训练慢约 1.85 倍；CatBoost 默认配置明显弱，不作为候选。")
     A("")
     A("---")
     A("")
