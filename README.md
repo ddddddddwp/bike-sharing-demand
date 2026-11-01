@@ -37,6 +37,7 @@ make shap      # P3 SHAP
 make badcase   # P3 badcase
 make report    # P3 report (generated)
 make ext       # horizontal extensions: hyperparam / ablation / efficiency / drift / stability
+make gpu       # optional: XGBoost CPU vs RTX 5060 GPU benchmark
 make verify    # acceptance checks
 make test      # pytest
 make all       # full pipeline

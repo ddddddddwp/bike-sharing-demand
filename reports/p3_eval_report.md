@@ -1,7 +1,7 @@
 # Bike Sharing Demand — P3 评估与解释报告
 
 > **状态：FINAL**  
-> 生成时间：2026-11-01T04:51:59+00:00  
+> 生成时间：2026-11-01T05:54:31+00:00  
 > OOF：`/root/code/bike-sharing-demand/reports/oof/final_oof.parquet`  
 > 指标：`/root/code/bike-sharing-demand/reports/eval/metrics.json`  
 
@@ -316,6 +316,8 @@ python3 -m src.eval.report --config configs/base.yaml
   sliding 12 个月 0.5262。
 - 模型效率：小模型 0.355 MB / 3.5ms/1k，只损失 0.0188 RMSLE；
   RF 46.6 MB / 151.7ms/1k，不适合部署。
+- GPU：XGBoost CUDA 在 10,886 行上约 13.3s，慢于 CPU 4.9s；
+  200k 行合成压力测试 2.3s vs 3.6–5.0s，GPU 约 1.6–2.2 倍加速；主模型继续 CPU。
 
 ---
 

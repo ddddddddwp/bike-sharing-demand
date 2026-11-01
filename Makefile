@@ -1,7 +1,7 @@
 PY ?= python3
 export PYTHONPATH := .
 
-.PHONY: data eda train compare predict eval shap badcase report ext all verify test
+.PHONY: data eda train compare predict eval shap badcase report ext gpu all verify test
 
 data:
 	$(PY) -m src.data.make_dataset --config configs/base.yaml
@@ -32,6 +32,9 @@ report:
 
 ext:
 	$(PY) scripts/run_extensions.py --experiment all
+
+gpu:
+	$(PY) scripts/gpu_benchmark.py --scaling
 
 verify:
 	$(PY) scripts/verify.py --config configs/base.yaml

@@ -47,11 +47,26 @@ make all
 device_type='gpu' -> LightGBMError: No OpenCL device found
 ```
 
-因此训练使用 CPU，RTX 5060 只被检测到、没有被 LightGBM 使用。这是正常现象：
+因此主模型训练使用 CPU。为了验证 5060 是否有用，额外装了 `xgboost-cu12==3.2.0`，做了同一 `time_v2` 折的 CPU vs CUDA 对比：
 
-- 表格 GBDT 在 10,886 行数据上 CPU 已经秒级完成，GPU 不会更快；
-- 如果要真正用 5060，应该换成 XGBoost/CatBoost 的 CUDA 构建，或做深度学习/图像任务；本项目没有这个必要；
-- 报告里不应声称“用了 GPU 加速”，只能写“在 RTX 5060 机器上完成 CPU 复现”。
+| 设备/模型 | CV RMSLE | 训练秒数（5 折） | 推理延迟 |
+|---|---:|---:|---:|
+| XGBoost CPU | 0.40348 | 4.87 | 3.50 ms/1k |
+| XGBoost CUDA（5060） | 0.40674 | 13.29 | 6.20 ms/1k |
+| LightGBM CPU（主模型） | 0.39973 | 4.77 | 8.27 ms/1k |
+
+**在 10,886 行上，GPU 反而慢约 2.7 倍**：CUDA 启动/传输/同步开销占主导。  
+另做 200k 行合成压力测试：CPU 3.6–5.0s，CUDA 2.3s，GPU 约 1.6–2.2 倍加速（受负载波动）。  
+所以结论是：**5060 可用，但本项目数据规模太小，主模型继续用 CPU；GPU 只在数据量上来后才有收益。**
+
+复现 GPU 对比：
+
+```bash
+pip install -r requirements-gpu.txt
+make gpu
+```
+
+报告里不要写“主模型用了 GPU 加速”，只能写“在 RTX 5060 机器上完成 CPU 主流程 + 额外 GPU 对比实验”。
 
 ## 官方 Kaggle 数据
 

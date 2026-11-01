@@ -1,0 +1,3 @@
+-r requirements.txt
+# Optional GPU benchmark dependency (CUDA 12 build)
+xgboost-cu12==3.2.0

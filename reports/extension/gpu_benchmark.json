@@ -1,0 +1,5 @@
+{
+  "xgboost_version": "3.2.0",
+  "gpu": "NVIDIA GeForce RTX 5060 Laptop GPU",
+  "note": "Same time_v2 folds, same features/target; one-hot categoricals for XGBoost."
+}
