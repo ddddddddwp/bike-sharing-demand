@@ -36,6 +36,7 @@ make eval      # P3 metrics/plots
 make shap      # P3 SHAP
 make badcase   # P3 badcase
 make report    # P3 report (generated)
+make ext       # horizontal extensions: hyperparam / ablation / efficiency / drift / stability
 make verify    # acceptance checks
 make test      # pytest
 make all       # full pipeline
@@ -55,6 +56,16 @@ Kaggle split (10,886 / 6,493 rows). To switch to the official Kaggle files:
 python3 scripts/fetch_kaggle.py --replace
 make data && make compare && make predict && make eval && make report
 ```
+
+
+## Horizontal extensions
+
+See `reports/extension_report.md` for:
+- hyperparameter sensitivity + convergence
+- feature/preprocessing ablation
+- model efficiency / lightweight model
+- temporal drift (static vs expanding vs sliding)
+- multi-seed stability + bootstrap CI
 
 ## Layout
 

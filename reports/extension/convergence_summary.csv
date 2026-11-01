@@ -1,0 +1,3 @@
+setting,best_iter,stop_iter,valid_rmsle
+early_stopping_3000,243,243,0.3360813897569805
+fixed_800,800,800,0.33000584991741494

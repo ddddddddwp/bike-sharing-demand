@@ -300,3 +300,14 @@ python3 scripts/predict.py --config configs/base.yaml --model lgbm --seed 42
 P2 完成了从时间 CV 到最终提交的完整闭环：在冻结的 5 折扩展窗口（time_v2）上比较了均值、Ridge、随机森林、LightGBM-Poisson 和 LightGBM-log1p；最佳模型为 **LightGBM + Poisson**，pooled OOF **RMSLE = 0.39973**、MAE = 46.586、RMSE = 73.611、R² = 0.8519；在全量 10,886 行上重新拟合，生成 6,493 行提交，预测值全部非负、无 NaN；产出可复现的 OOF（8,196 行，75.29% 覆盖）、实验日志、对比表、特征重要度和图表；并明确记录了时间外推、月内日期分布差异、无目标滞后、目标聚合自包含、单种子和模型选择偏差等限制。
 
 后续若要进一步提升，建议优先在特征层加入严格时间滚动的 lag/rolling 特征，并在不泄漏测试标签的前提下尝试多种子平均和更细的时间折；模型层面可继续比较 Poisson 与 Tweedie 目标，或对低计数时段做专门校准。
+
+
+## 11. 横向拓展
+
+超参/收敛、特征/预处理消融、模型效率、时间漂移、多 seed 的补充实验见 `reports/extension_report.md`。与本报告直接相关的结论：
+
+- 固定 800 棵下，`learning_rate=0.05`、`num_leaves=31`、`min_child_samples=30` 已接近最优；`num_leaves=15` 的 −0.0019 小于 seed std（0.00148），不能称显著。
+- 去掉 `year` 后 RMSLE 从 0.39973 恶化到 0.49147；去掉交互特征恶化 0.0074；Poisson 优于 log1p+L2（0.39973 vs 0.41478）。
+- 小模型（0.355 MB、0.81s 训练、3.5ms/1k）只损失 0.0188 RMSLE；RF 46.6 MB、151.7ms/1k，不适合部署。
+- 静态 2011 模型在 2012 上加权 RMSLE 0.5402；按月扩展重训 0.3493，sliding 12 个月 0.5262。
+- 3 seeds OOF RMSLE 0.39973 / 0.40177 / 0.40262，seed std 0.00148；bootstrap 95% CI [0.3910, 0.4087]。

@@ -1,7 +1,7 @@
 # Bike Sharing Demand — P3 评估与解释报告
 
 > **状态：FINAL**  
-> 生成时间：2026-11-01T01:58:59+00:00  
+> 生成时间：2026-11-01T04:51:59+00:00  
 > OOF：`/root/code/bike-sharing-demand/reports/oof/final_oof.parquet`  
 > 指标：`/root/code/bike-sharing-demand/reports/eval/metrics.json`  
 
@@ -304,6 +304,18 @@ python3 -m src.eval.report --config configs/base.yaml
 | `reports/eval/badcase_top50.csv` | Top-50 误差明细 |
 | `reports/eval/badcase_segment_table.csv` | 分群误差 + badcase 集中度 |
 | `reports/figures/p3_*.png` | 评估/解释图 |
+
+## 11. 横向拓展
+
+超参/收敛、特征/预处理消融、模型效率、时间漂移、多 seed 与 bootstrap CI 见
+`reports/extension_report.md`。P3 相关的核心结论：
+
+- 3 seeds OOF RMSLE 0.39973 / 0.40177 / 0.40262，seed std 0.00148；
+  bootstrap 95% CI [0.3910, 0.4087]。
+- 静态 2011 模型在 2012 上加权 RMSLE 0.5402；按月扩展重训 0.3493，
+  sliding 12 个月 0.5262。
+- 模型效率：小模型 0.355 MB / 3.5ms/1k，只损失 0.0188 RMSLE；
+  RF 46.6 MB / 151.7ms/1k，不适合部署。
 
 ---
 

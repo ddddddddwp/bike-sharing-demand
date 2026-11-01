@@ -1,7 +1,7 @@
 PY ?= python3
 export PYTHONPATH := .
 
-.PHONY: data eda train compare predict eval shap badcase report all verify test
+.PHONY: data eda train compare predict eval shap badcase report ext all verify test
 
 data:
 	$(PY) -m src.data.make_dataset --config configs/base.yaml
@@ -30,11 +30,14 @@ badcase:
 report:
 	$(PY) -m src.eval.report --config configs/base.yaml
 
+ext:
+	$(PY) scripts/run_extensions.py --experiment all
+
 verify:
 	$(PY) scripts/verify.py --config configs/base.yaml
 
 test:
 	$(PY) -m pytest -q
 
-all: data eda compare predict eval shap badcase report verify
+all: data eda compare predict eval shap badcase report ext verify
 	@echo "== Bike Sharing Demand pipeline complete =="

@@ -85,6 +85,22 @@ def main() -> None:
         ck("OOF row 在 [0, 10886)", bool((o["row"] >= 0).all() and (o["row"] < 10886).all()))
         ck("OOF 无 NaN", int(o[["y", "pred"]].isna().sum().sum()) == 0)
 
+    ext = reports / "extension"
+    for name, min_rows in (
+        ("hyperparam.csv", 10),
+        ("feature_ablation.csv", 8),
+        ("efficiency.csv", 6),
+        ("temporal_shift.csv", 12),
+        ("stability.csv", 3),
+    ):
+        p = ext / name
+        rows = len(pd.read_csv(p)) if p.exists() else 0
+        ck(f"extension/{name} 行数 >= {min_rows}", p.exists() and rows >= min_rows, str(rows))
+    for name in ("ext_hyperparam.png", "ext_convergence.png", "ext_feature_ablation.png",
+                 "ext_efficiency.png", "ext_temporal_shift.png", "ext_stability.png"):
+        ck(f"figures/{name} 存在", (reports / "figures" / name).exists())
+    ck("extension_report.md 存在", (reports / "extension_report.md").exists())
+
     for name in ("p1_data_report.md", "p2_model_report.md", "p3_eval_report.md"):
         ck(f"{name} 存在", (reports / name).exists())
 
